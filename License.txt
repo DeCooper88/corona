@@ -1,3 +1,4 @@
+THe MIT License (MIT)
 
 Copyright (c) 2020 Dennis Koopman
 
