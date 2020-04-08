@@ -31,8 +31,8 @@ def get_number(data_string):
         return int(number)
 
 
-def correct(date):
-    d, m, y = date.split("-")
+def modify_date(original_date):
+    d, m, y = original_date.split("-")
     return "-".join([y, m, d])
 
 
@@ -101,10 +101,10 @@ def get_data(countries):
 # req_countries = ['Italy', 'Spain', 'the_United_States', 'France', 'the_United_Kingdom',
 #                  'the_Netherlands', 'Germany', 'Belgium', 'Denmark', 'Austria']
 
-test_countries = ["France", "the_Netherlands", "Belgium"]
-
-wiki_data = get_data(test_countries)
-
-print(wiki_data.head())
-print()
-print(wiki_data.info())
+# test_countries = ["France", "the_Netherlands", "Belgium"]
+#
+# wiki_data = get_data(test_countries)
+#
+# print(wiki_data.head())
+# print()
+# print(wiki_data.info())
