@@ -12,7 +12,7 @@ countries = {country: code for country, code in zip(cs.split(), cc.split())}
 
 
 def get_wiki_page(country):
-    """download corona wiki page for country and return as BeautifulSoup object"""
+    """download corona wikipedia page for country and return as BeautifulSoup object"""
     url = BASE_WIKI_URL + country
     wiki_page = rq.get(url)
     wiki_page.raise_for_status()
@@ -61,7 +61,7 @@ def get_table_rows(country):
 
 
 def create_df(country):
-    "create dataframe from country data"
+    """create dataframe from country data"""
     data = get_table_rows(country)
     cols = ["date", "cases_" + countries[country], "deaths_" + countries[country]]
     df = pd.DataFrame(data, columns=cols)
