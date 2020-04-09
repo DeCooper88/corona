@@ -39,7 +39,7 @@ def modify_date(original_date):
 def clean_data(row):
     date, _, c, d = row
     if date.endswith("2020"):
-        date = correct(date)
+        date = modify_date(date)
     cases = get_number(c.strip())
     deaths = get_number(d.strip())
     return date, cases, deaths
@@ -55,6 +55,7 @@ def get_table_rows(country):
     table_data = []
     for row in rows[2:-1]:
         row_strings = [col.text for col in row.find_all("td")]
+        print(row_strings)
         if row_strings[0] != "⋮":
             table_data.append(clean_data(row_strings))
     return table_data
@@ -101,6 +102,9 @@ def get_data(countries):
 # req_countries = ['Italy', 'Spain', 'the_United_States', 'France', 'the_United_Kingdom',
 #                  'the_Netherlands', 'Germany', 'Belgium', 'Denmark', 'Austria']
 
+
+
+
 # test_countries = ["France", "the_Netherlands", "Belgium"]
 #
 # wiki_data = get_data(test_countries)
@@ -108,3 +112,6 @@ def get_data(countries):
 # print(wiki_data.head())
 # print()
 # print(wiki_data.info())
+#
+# belgen = get_table_rows('Belgium')
+# print(belgen)
