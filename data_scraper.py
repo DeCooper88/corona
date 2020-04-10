@@ -5,8 +5,8 @@ from time import sleep
 
 
 cw = "Austria Belgium Denmark France Germany Italy Japan the_Netherlands " +\
-     "New_York_(state) South_Korea Spain Sweden the_United_Kingdom the_United_States"
-cc = "at be dk fr de it jp nl ny kr es se uk us"
+     "New_York_(state) South_Korea Spain the_United_Kingdom the_United_States"
+cc = "at be dk fr de it jp nl ny kr es uk us"
 
 # dictionary that get country short-code for wikipedia country name
 wiki_shortcodes = {country: code for country, code in zip(cw.split(), cc.split())}
@@ -103,7 +103,7 @@ def fill_missing_data(df):
     return df
 
 
-def get_data(countries):
+def download_data(countries):
     """Download corona data from wikipedia and return as pandas dataframe."""
     today = pd.to_datetime("today")
     yesterday = today - pd.DateOffset(days=1)
