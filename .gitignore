@@ -4,3 +4,4 @@
 __pycache__/
 .coverage
 scratchpad.py
+.ipynb_checkpoints

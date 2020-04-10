@@ -4,10 +4,20 @@ import pandas as pd
 from time import sleep
 
 
-cw = "Austria Belgium Denmark France Germany Italy the_Netherlands Spain " +\
-     "the_United_Kingdom the_United_States"
-cc = "at be dk fr de it nl es uk us"
-country_short_codes = {country: code for country, code in zip(cw.split(), cc.split())}
+cw = "Austria Belgium Denmark France Germany Italy Japan the_Netherlands " +\
+     "New_York_(state) South_Korea Spain Sweden the_United_Kingdom the_United_States"
+cc = "at be dk fr de it jp nl ny kr es se uk us"
+
+# dictionary that get country short-code for wikipedia country name
+wiki_shortcodes = {country: code for country, code in zip(cw.split(), cc.split())}
+
+# country_names is dictionary that gets country name for country short-code
+# this ensures names are proper python variable names, suitable for dataframe columns
+country_names = {code: country.lower() for country, code in wiki_shortcodes.items()}
+country_names['nl'] = 'netherlands'
+country_names['ny'] = 'ny_state'
+country_names['uk'] = 'uk'
+country_names['us'] = 'us'
 
 
 def get_wiki_pages(countries, pause=3):
@@ -79,7 +89,7 @@ def create_df(wiki_table_html, country_code):
     df = pd.DataFrame(data, columns=cols)
     df.date = pd.to_datetime(df.date)
     last_date, _ = str(df.iloc[-1, 0]).split(" ")
-    print(f"Data upto {last_date} collected for {country_code}.")
+    print(f"Data upto {last_date} collected for {country_names[country_code]}.")
     return df
 
 
@@ -102,7 +112,7 @@ def get_data(countries):
     df = pd.DataFrame(dates, columns=["date"])
     print('Base dataframe created')
     soup_objects = get_wiki_pages(countries)
-    country_codes = [country_short_codes[c] for c in countries]
+    country_codes = [wiki_shortcodes[c] for c in countries]
     for soup, country_code in zip(soup_objects, country_codes):
         country_data = create_df(soup, country_code)
         df = df.merge(country_data, how="left", on="date")
@@ -110,18 +120,3 @@ def get_data(countries):
     df = fill_missing_data(df)
     print('Dataframe ready.')
     return df
-
-
-# req_countries = ['Italy', 'Spain', 'the_United_States', 'France', 'the_United_Kingdom',
-#                  'the_Netherlands', 'Germany', 'Belgium', 'Denmark', 'Austria']
-
-
-# test_countries = ["France", "the_Netherlands", "Belgium"]
-#
-# wiki_data = get_data(test_countries)
-#
-# print(wiki_data.head())
-# print()
-# print(wiki_data.info())
-# print()
-# print(wiki_data.tail())
