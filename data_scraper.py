@@ -5,8 +5,10 @@ import requests as rq
 from time import sleep
 
 
-cw = "Austria Belgium Canada Denmark France Germany Italy Japan the_Netherlands " +\
-     "New_York_(state) South_Korea Spain Sweden the_United_Kingdom the_United_States"
+cw = (
+    "Austria Belgium Canada Denmark France Germany Italy Japan the_Netherlands "
+    + "New_York_(state) South_Korea Spain Sweden the_United_Kingdom the_United_States"
+)
 cc = "at be ca dk fr de it jp nl ny kr es se uk us"
 
 # dictionary that get country short-code for wikipedia country name
@@ -15,10 +17,10 @@ wiki_shortcodes = {country: code for country, code in zip(cw.split(), cc.split()
 # country_names is dictionary that gets country name for country short-code
 # this ensures names are proper python variable names, suitable for dataframe columns
 country_names = {code: country.lower() for country, code in wiki_shortcodes.items()}
-country_names['nl'] = 'netherlands'
-country_names['ny'] = 'ny_state'
-country_names['uk'] = 'uk'
-country_names['us'] = 'us'
+country_names["nl"] = "netherlands"
+country_names["ny"] = "ny_state"
+country_names["uk"] = "uk"
+country_names["us"] = "us"
 
 
 def get_wiki_pages(countries, pause=3):
@@ -46,11 +48,11 @@ def get_number(data_string):
     elif "(" in data_string:
         n, *_ = data_string.split("(")
         # number = n.replace(",", "")
-        number = re.sub(r'\D', '', n)
+        number = re.sub(r"\D", "", n)
         return int(number)
     else:
         # number = data_string.replace(",", "")
-        number = re.sub(r'\D', '', data_string)
+        number = re.sub(r"\D", "", data_string)
         return int(number)
 
 
@@ -113,7 +115,7 @@ def download_data(countries):
     # start date is when first case was reported in United States
     dates = pd.date_range(start="01-21-2020", end=yesterday)
     df = pd.DataFrame(dates, columns=["date"])
-    print('Base dataframe created')
+    print("Base dataframe created")
     soup_objects = get_wiki_pages(countries)
     country_codes = [wiki_shortcodes[c] for c in countries]
     for soup, country_code in zip(soup_objects, country_codes):
@@ -121,5 +123,5 @@ def download_data(countries):
         df = df.merge(country_data, how="left", on="date")
     print("Fill missing data.")
     df = fill_missing_data(df)
-    print('Dataframe ready.')
+    print("Dataframe ready.")
     return df
