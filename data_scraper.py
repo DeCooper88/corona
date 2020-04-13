@@ -1,12 +1,13 @@
-import requests as rq
 from bs4 import BeautifulSoup
 import pandas as pd
+import re
+import requests as rq
 from time import sleep
 
 
-cw = "Austria Belgium Denmark France Germany Italy Japan the_Netherlands " +\
-     "New_York_(state) South_Korea Spain the_United_Kingdom the_United_States"
-cc = "at be dk fr de it jp nl ny kr es uk us"
+cw = "Austria Belgium Canada Denmark France Germany Italy Japan the_Netherlands " +\
+     "New_York_(state) South_Korea Spain Sweden the_United_Kingdom the_United_States"
+cc = "at be ca dk fr de it jp nl ny kr es se uk us"
 
 # dictionary that get country short-code for wikipedia country name
 wiki_shortcodes = {country: code for country, code in zip(cw.split(), cc.split())}
@@ -44,10 +45,12 @@ def get_number(data_string):
         return 0
     elif "(" in data_string:
         n, *_ = data_string.split("(")
-        number = n.replace(",", "")
+        # number = n.replace(",", "")
+        number = re.sub(r'\D', '', n)
         return int(number)
     else:
-        number = data_string.replace(",", "")
+        # number = data_string.replace(",", "")
+        number = re.sub(r'\D', '', data_string)
         return int(number)
 
 
