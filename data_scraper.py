@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 import re
-import requests as rq
+import requests
 from time import sleep
 
 
@@ -35,7 +36,7 @@ def get_wiki_pages(countries, pause=3):
         if pause_count > 0:
             sleep(pause)
         url = base_wiki_url + country
-        wiki_page = rq.get(url)
+        wiki_page = requests.get(url)
         wiki_page.raise_for_status()
         yield BeautifulSoup(wiki_page.text, "html.parser")
         pause_count += 1
@@ -47,11 +48,9 @@ def get_number(data_string):
         return 0
     elif "(" in data_string:
         n, *_ = data_string.split("(")
-        # number = n.replace(",", "")
         number = re.sub(r"\D", "", n)
         return int(number)
     else:
-        # number = data_string.replace(",", "")
         number = re.sub(r"\D", "", data_string)
         return int(number)
 
@@ -124,4 +123,63 @@ def download_data(countries):
     print("Fill missing data.")
     df = fill_missing_data(df)
     print("Dataframe ready.")
+    return df
+
+
+def download_population_data():
+    """Download worldometer country population and return as BeautifulSoup object"""
+    url = 'https://www.worldometers.info/world-population/population-by-country/'
+    populations = requests.get(url)
+    populations.raise_for_status()
+    return BeautifulSoup(populations.text, 'html.parser')
+
+
+def get_population_table(bs4_object):
+    """Extract population table from html and return as bs4 element tag."""
+    table = bs4_object.find("table", {"id": "example2"})
+    return table
+
+
+def get_population_header_row(html):
+    """Extract header row from html and return as list of strings."""
+    headers = html.select('thead > tr > th')
+    return [td_tag.text for td_tag in headers]
+
+
+def get_population_table_rows(html):
+    cols = []
+    for row in html.select('tbody tr'):
+        row_text = [x.text for x in row.find_all('td')]
+        cols.append(row_text)
+    return cols
+
+
+def create_population_dataframe(rows, headers):
+    """Return dataframe with only required columns, from list of lists of strings."""
+    df = pd.DataFrame(rows, columns=headers)
+    return df.iloc[:, [1, 2, 5, 6, 9, 10]]
+
+
+def clean_population_dataframe(df):
+    new_column_names = {'Country (or dependency)': 'country',
+                        'Population (2020)': 'population',
+                        'Density (P/Km²)': 'pop_density',
+                        'Land Area (Km²)': 'land_area',
+                        'Med. Age': 'median_age',
+                        'Urban Pop %': 'urb_pop_pct'}
+    df = df.rename(new_column_names, axis=1)
+    df.country = df.country.str.lower()
+    df.iloc[:, 1:] = df.iloc[:, 1:].replace(r'\D', '', regex=True)
+    df = df.replace(r'^\s*$', np.nan, regex=True)
+    df.iloc[:, 1:] = df.iloc[:, 1:].astype('float64')
+    return df
+
+
+def get_population_data():
+    page_html = download_population_data()
+    table_html = get_population_table(page_html)
+    headers = get_population_header_row(table_html)
+    data_rows = get_population_table_rows(table_html)
+    df = create_population_dataframe(data_rows, headers)
+    df = clean_population_dataframe(df)
     return df
