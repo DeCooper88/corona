@@ -126,7 +126,14 @@ def download_data(countries):
     return df
 
 
-def download_population_data():
+worldometers_mapper = {'at': 'austria', 'be': 'belgium', 'ca': 'canada',
+                       'dk': 'denmark', 'fr': 'france', 'de': 'germany', 'it': 'italy',
+                       'jp': 'japan', 'nl': 'netherlands', 'kr': 'south korea',
+                       'es': 'spain', 'se': 'sweden', 'uk': 'united kingdom',
+                       'us': 'united states'}
+
+
+def download_country_data():
     """Download worldometer country population and return as BeautifulSoup object"""
     url = 'https://www.worldometers.info/world-population/population-by-country/'
     populations = requests.get(url)
@@ -134,19 +141,19 @@ def download_population_data():
     return BeautifulSoup(populations.text, 'html.parser')
 
 
-def get_population_table(bs4_object):
+def get_country_table(bs4_object):
     """Extract population table from html and return as bs4 element tag."""
     table = bs4_object.find("table", {"id": "example2"})
     return table
 
 
-def get_population_header_row(html):
+def get_country_header_row(html):
     """Extract header row from html and return as list of strings."""
     headers = html.select('thead > tr > th')
     return [td_tag.text for td_tag in headers]
 
 
-def get_population_table_rows(html):
+def get_country_table_rows(html):
     cols = []
     for row in html.select('tbody tr'):
         row_text = [x.text for x in row.find_all('td')]
@@ -154,13 +161,13 @@ def get_population_table_rows(html):
     return cols
 
 
-def create_population_dataframe(rows, headers):
+def create_country_dataframe(rows, headers):
     """Return dataframe with only required columns, from list of lists of strings."""
     df = pd.DataFrame(rows, columns=headers)
     return df.iloc[:, [1, 2, 5, 6, 9, 10]]
 
 
-def clean_population_dataframe(df):
+def clean_country_dataframe(df):
     new_column_names = {'Country (or dependency)': 'country',
                         'Population (2020)': 'population',
                         'Density (P/Km²)': 'pop_density',
@@ -175,11 +182,21 @@ def clean_population_dataframe(df):
     return df
 
 
-def get_population_data():
-    page_html = download_population_data()
-    table_html = get_population_table(page_html)
-    headers = get_population_header_row(table_html)
-    data_rows = get_population_table_rows(table_html)
-    df = create_population_dataframe(data_rows, headers)
-    df = clean_population_dataframe(df)
+def get_country_data():
+    page_html = download_country_data()
+    table_html = get_country_table(page_html)
+    headers = get_country_header_row(table_html)
+    data_rows = get_country_table_rows(table_html)
+    df = create_country_dataframe(data_rows, headers)
+    df = clean_country_dataframe(df)
     return df
+
+
+def population_table():
+    country_data = get_country_data()
+    pop_table = {}
+    for code in worldometers_mapper.keys():
+        pop = int(country_data[country_data.country == worldometers_mapper[code]].population)
+        pop_table[code] = pop
+    pop_table['ny'] = 19453561
+    return pop_table
