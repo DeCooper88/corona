@@ -49,10 +49,10 @@ def get_number(data_string):
     elif "(" in data_string:
         n, *_ = data_string.split("(")
         number = re.sub(r"\D", "", n)
-        return int(number)
+        return int(number) if len(number) > 0 else 0
     else:
         number = re.sub(r"\D", "", data_string)
-        return int(number)
+        return int(number) if len(number) > 0 else 0
 
 
 def modify_date(original_date):
